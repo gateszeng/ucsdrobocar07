@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time
 
 
 stop_detect = cv2.CascadeClassifier('./stopsign_classifier.xml')
@@ -7,9 +8,12 @@ yield_detect = cv2.CascadeClassifier('./yieldsign12Stages.xml')
 speedlimits_detect = cv2.CascadeClassifier('./Speedlimit_24_15Stages.xml')
 font = cv2.FONT_HERSHEY_SIMPLEX
 cam = cv2.VideoCapture(0)
+frames = 0
 
+start = time.time()
 while True:
     ret, img =cam.read()
+    frames = frames + 1
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     yields = yield_detect.detectMultiScale(gray,1.2,4)
     stops = stop_detect.detectMultiScale(gray,1.2,5)
@@ -30,6 +34,9 @@ while True:
     cv2.imshow('im',img)
     if (cv2.waitKey(1) == ord('q')):
         break
+end = time.time()
 
+print("Time recorded", end - start)
+print("FPS", frames/(end-start))
 cam.release()
 cv2.destroyAllWindows()
