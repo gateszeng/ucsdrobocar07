@@ -1,4 +1,5 @@
 import cv2
+import picamera
 import numpy as np
 import time
 
@@ -7,12 +8,20 @@ stop_detect = cv2.CascadeClassifier('./stopsign_classifier.xml')
 yield_detect = cv2.CascadeClassifier('./yieldsign12Stages.xml')
 speedlimits_detect = cv2.CascadeClassifier('./Speedlimit_24_15Stages.xml')
 font = cv2.FONT_HERSHEY_SIMPLEX
-cam = cv2.VideoCapture(0)
+#cam = cv2.VideoCapture(0)
 frames = 0
 
 start = time.time()
 while True:
-    ret, img =cam.read()
+    with picamera.PiCamera() as camera:
+        camera.resolution = (320, 240)
+        camera.framerate = 24
+        time.sleep(2)
+        img = np.empty((240*320*3,), dtype=np.uint8)
+        camera.capture(img, 'bgr')
+        img = img.reshape((240, 320, 3))
+
+    #ret, img =cam.read()
     frames = frames + 1
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     yields = yield_detect.detectMultiScale(gray,1.2,4)
@@ -38,5 +47,5 @@ end = time.time()
 
 print("Time recorded", end - start)
 print("FPS", frames/(end-start))
-cam.release()
+#cam.release()
 cv2.destroyAllWindows()
