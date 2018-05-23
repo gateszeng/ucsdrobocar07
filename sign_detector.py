@@ -8,6 +8,8 @@ import imutils
 import cv2
 import numpy as np
 import time
+import serial
+import io
 
 stop_detect = cv2.CascadeClassifier('./stopsign_classifier.xml')
 yield_detect = cv2.CascadeClassifier('./yieldsign12Stages.xml')
@@ -19,6 +21,12 @@ frames = 0
 vs = PiVideoStream().start()
 time.sleep(2.0)
 fps = FPS().start()
+
+ser = serial.Serial(
+port = '/dev/serial0', \
+baudrate = 115200, \
+bytesize = serial.EIGHTBITS, \
+timeout = 0)
 
 start = time.time()
 while True:
@@ -45,6 +53,14 @@ while True:
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)    
         cv2.putText(img,"yield", (x,y+h),font, 1,(255,0,0),2)
 
+    if signs:
+        ser.write('speed_limit')
+    elif stops:
+        ser.write('stop')
+    elif yields:
+        ser.write('yield')
+    time.sleep(0.1)
+
     cv2.imshow('im',img)
     if (cv2.waitKey(1) == ord('q')):
         break
@@ -53,5 +69,6 @@ end = time.time()
 print("Time recorded", end - start)
 print("FPS", frames/(end-start))
 #cam.release()
+ser.close()
 cv2.destroyAllWindows()
 vs.stop()
