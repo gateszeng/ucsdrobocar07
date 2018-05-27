@@ -16,9 +16,9 @@ temp = ''
 while True:
 	#s = ser.readline(20) if s != "b''":
 	#		print(s)
-	for c in ser.read(1):
-		temp = temp + str(c)
-		print(temp)
+	for c in ser.read(1).decode('utf-8'):
+		temp = temp + c
+		#print(temp)
 		if c == '\n':
 			print(temp)
 			temp = ''
